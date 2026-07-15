@@ -26,4 +26,9 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t vendor_cicid:test .
+          docker build \
+          -t ghcr.io/tdtl-internal-applications/vendor_cicid:latest .
+
+      - name: Push Docker Image
+        run: |
+          docker push ghcr.io/tdtl-internal-applications/vendor_cicid:latest
