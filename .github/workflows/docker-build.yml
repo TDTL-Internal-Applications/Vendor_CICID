@@ -17,7 +17,7 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Login to GHCR
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -40,16 +40,24 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-
           script: |
+            set -e
+
+            echo "Changing to deployment directory..."
             cd /home/tdtlserver/projects/Vendor_CICID/Frontend
 
-            docker login ghcr.io \
+            echo "Logging into GHCR..."
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
               -u "${{ secrets.GHCR_USERNAME }}" \
-              -p "${{ secrets.GHCR_TOKEN }}"
+              --password-stdin
 
+            echo "Pulling latest Docker image..."
             docker compose pull
 
+            echo "Restarting containers..."
             docker compose up -d
 
+            echo "Removing unused Docker images..."
             docker image prune -f
+
+            echo "Deployment completed successfully."
